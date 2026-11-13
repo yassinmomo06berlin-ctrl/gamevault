@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#100d1c">
+<title>GameVault</title>
+<style>
+:root{color-scheme:dark;--bg:#100d1c;--panel:#1d1730;--panel2:#29203d;--purple:#a78bfa;--text:#f7f2ff;--muted:#b7a8ce;--line:#44345d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#291b43 0,#100d1c 48%);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:620px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom))}
+header{display:flex;justify-content:space-between;align-items:center;margin:6px 0 22px}.brand{font-size:27px;font-weight:900;letter-spacing:1.5px}.sub{color:var(--purple);font-size:10px;letter-spacing:2px;margin-top:3px}.logo{background:#382650;border:1px solid #65458d;border-radius:15px;padding:12px;font-size:25px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.panel,.stat{background:linear-gradient(145deg,#261d39,#1b152b);border:1px solid var(--line);border-radius:17px;padding:15px}.stat small{color:var(--muted);font-size:11px;letter-spacing:1px}.stat strong{display:block;font-size:27px;margin-top:5px}
+button,input,select,textarea{font:inherit}button{border:0;border-radius:12px;padding:12px 14px;background:#8b5cf6;color:white;font-weight:700;cursor:pointer}button.secondary{background:var(--panel2);border:1px solid var(--line);color:#e7dcff}button.danger{background:#492238;color:#ffc7d9}button.small{padding:8px 10px;font-size:13px}.add{width:100%;margin:14px 0 18px;padding:15px}
+h2{font-size:15px;margin:20px 0 11px}.filters{display:flex;gap:7px;overflow:auto;padding-bottom:5px}.filters button{white-space:nowrap}.filters button.active{background:#8b5cf6}
+label{display:block;color:var(--muted);font-size:12px;margin:9px 0 6px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;background:#130f20;color:var(--text);outline:none}input:focus,select:focus,textarea:focus{border-color:var(--purple)}
+.form{margin-bottom:16px}.form-actions{display:flex;gap:8px;margin-top:13px}.form-actions button{flex:1}
+.account{display:flex;align-items:center;gap:12px;margin:9px 0}.gameicon{width:45px;height:45px;display:grid;place-items:center;background:#382650;border-radius:13px;font-size:23px;flex:none}.account-info{flex:1;min-width:0}.account-info strong{display:block;overflow-wrap:anywhere}.muted{color:var(--muted);font-size:12px;margin-top:3px}.tag{font-size:11px;color:#cbb8f2;background:#332647;padding:5px 8px;border-radius:20px}
+.empty{text-align:center;padding:30px 14px;color:var(--muted)}.empty b{display:block;color:var(--text);margin:8px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}.note{font-size:12px;color:var(--muted);line-height:1.5}.hidden{display:none!important}.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#332647;border:1px solid #7453a0;padding:10px 15px;border-radius:12px;display:none;max-width:90%;z-index:4}
+footer{text-align:center;color:#806e9e;font-size:10px;letter-spacing:1px;margin:25px 0 8px}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="brand">GAMEVAULT</div><div class="sub">YOUR GAMING ACCOUNT HUB</div></div><div class="logo">🎮</div></header>
+<section class="stats"><div class="stat"><small>GESPEICHERTE ACCOUNTS</small><strong id="total">0</strong></div><div class="stat"><small>SPIELE</small><strong id="gameTotal">0</strong></div></section>
+<button class="add" id="showForm">＋ Account hinzufügen</button>
+<section class="panel form hidden" id="formPanel">
+<h2 id="formTitle" style="margin-top:0">Neuen Account hinzufügen</h2>
+<label for="game">Spiel</label><select id="game">
+<option>Clash of Clans</option><option>Clash Royale</option><option>Brawl Stars</option><option>Roblox</option><option>Andere Spiele</option></select>
+<div id="customWrap" class="hidden"><label for="customGame">Name des Spiels</label><input id="customGame" placeholder="z. B. Minecraft"></div>
+<label for="nickname">Account-Name *</label><input id="nickname" maxlength="50" placeholder="z. B. Main Account">
+<label for="playerTag">Spieler-Tag (optional)</label><input id="playerTag" maxlength="40" placeholder="z. B. #ABC123">
+<label for="notes">Notiz (optional)</label><input id="notes" maxlength="120" placeholder="z. B. Rathaus Level 15">
+<div class="form-actions"><button class="secondary" id="cancel">Abbrechen</button><button id="save">Speichern</button></div>
+</section>
+<h2>Meine Spiele</h2><div class="filters" id="filters"></div>
+<h2>Deine Accounts</h2><section id="accounts"></section>
+<section class="panel" style="margin-top:20px">
+<h2 style="margin-top:0">Backup & Datenschutz</h2>
+<p class="note">Deine Einträge werden lokal in diesem Browser auf diesem Gerät gespeichert. Exportiere regelmäßig ein Backup, damit du deine Liste bei einem Geräte- oder Browserwechsel mitnehmen kannst.</p>
+<div class="tools"><button class="secondary small" id="export">Backup exportieren</button><button class="secondary small" id="importBtn">Backup importieren</button><input type="file" id="importFile" accept="application/json,.json" class="hidden"></div>
+<p class="note">GameVault speichert keine Passwörter und meldet dich nicht automatisch in Spielen an. Der Account-Wechsel erfolgt weiterhin innerhalb des jeweiligen Spiels.</p>
+</section>
+<footer>GAMEVAULT · VERSION 1.0 · LOCAL STORAGE</footer>
+</main><div class="toast" id="toast"></div>
+<script>
+const defaults=[["Alle","✦"],["Clash of Clans","⚔️"],["Clash Royale","👑"],["Brawl Stars","⭐"],["Roblox","🟥"],["Andere Spiele","🎮"]];
+const icons={"Clash of Clans":"⚔️","Clash Royale":"👑","Brawl Stars":"⭐","Roblox":"🟥","Andere Spiele":"🎮"};
+const KEY="gamevault.accounts.v1";let accounts=[];let active="Alle";let editing=null;
+const $=id=>document.getElementById(id);
+function load(){try{accounts=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(accounts))accounts=[]}catch{accounts=[]}render()}
+function persist(){localStorage.setItem(KEY,JSON.stringify(accounts));render()}
+function toast(s){$("toast").textContent=s;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2300)}
+function render(){
+ $("total").textContent=accounts.length;$("gameTotal").textContent=new Set(accounts.map(a=>a.game)).size;
+ $("filters").innerHTML=defaults.map(([n,ic])=>`<button class="${active===n?"active":"secondary"} small" data-filter="${n}">${ic} ${n}</button>`).join("");
+ $("filters").querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.filter;render()});
+ const list=accounts.filter(a=>active==="Alle"||a.game===active);
+ $("accounts").innerHTML=list.length?list.map(a=>`<article class="panel account"><div class="gameicon">${icons[a.game]||"🎮"}</div><div class="account-info"><strong>${esc(a.nickname)}</strong><div class="muted">${esc(a.game)}</div>${a.tag?`<div class="muted">${esc(a.tag)}</div>`:""}${a.notes?`<div class="muted">${esc(a.notes)}</div>`:""}</div><div style="display:flex;flex-direction:column;gap:6px"><button class="secondary small" data-edit="${a.id}">Bearbeiten</button><button class="danger small" data-delete="${a.id}">Löschen</button></div></article>`).join(""):`<div class="panel empty"><div style="font-size:28px">🎮</div><b>Noch keine Accounts</b>Füge deinen ersten Gaming-Account hinzu.</div>`;
+ $("accounts").querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{if(confirm("Diesen Eintrag wirklich löschen?")){accounts=accounts.filter(a=>a.id!==b.dataset.delete);persist();toast("Account gelöscht.")}});
+ $("accounts").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>edit(b.dataset.edit));
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function openForm(){editing=null;$("formTitle").textContent="Neuen Account hinzufügen";$("game").value="Clash of Clans";$("customGame").value="";$("nickname").value="";$("playerTag").value="";$("notes").value="";$("customWrap").classList.add("hidden");$("formPanel").classList.remove("hidden");$("nickname").focus()}
+function edit(id){const a=accounts.find(x=>x.id===id);if(!a)return;editing=id;$("formTitle").textContent="Account bearbeiten";$("game").value=defaults.some(x=>x[0]===a.game&&x[0]!=="Alle")?a.game:"Andere Spiele";$("customWrap").classList.toggle("hidden",$("game").value!=="Andere Spiele");$("customGame").value=$("game").value==="Andere Spiele"&&a.game!=="Andere Spiele"?a.game:"";$("nickname").value=a.nickname;$("playerTag").value=a.tag||"";$("notes").value=a.notes||"";$("formPanel").classList.remove("hidden");$("nickname").focus()}
+$("game").onchange=()=>{$("customWrap").classList.toggle("hidden",$("game").value!=="Andere Spiele")};
+$("showForm").onclick=()=>{if($("formPanel").classList.contains("hidden"))openForm();else $("formPanel").classList.add("hidden")};
+$("cancel").onclick=()=>$("formPanel").classList.add("hidden");
+$("save").onclick=()=>{const nickname=$("nickname").value.trim();if(!nickname){toast("Bitte gib einen Account-Namen ein.");return}const choice=$("game").value;const game=choice==="Andere Spiele"?($("customGame").value.trim()||"Andere Spiele"):choice;const item={id:editing||String(Date.now()),game,nickname,tag:$("playerTag").value.trim(),notes:$("notes").value.trim()};if(editing)accounts=accounts.map(a=>a.id===editing?item:a);else accounts.push(item);persist();$("formPanel").classList.add("hidden");toast(editing?"Änderungen gespeichert.":"Account hinzugefügt.");editing=null};
+$("export").onclick=()=>{const blob=new Blob([JSON.stringify({app:"GameVault",version:1,accounts},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="gamevault-backup.json";a.click();URL.revokeObjectURL(url);toast("Backup vorbereitet.")};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.accounts))throw Error();if(confirm("Backup importieren? Bestehende Einträge werden ersetzt.")){accounts=data.accounts.filter(a=>a&&a.nickname&&a.game).map(a=>({id:String(a.id||Date.now()+Math.random()),game:String(a.game),nickname:String(a.nickname),tag:String(a.tag||""),notes:String(a.notes||"")}));persist();toast("Backup importiert.")}}catch{toast("Backup-Datei ist ungültig.")}e.target.value=""};
+load();
+</script></body></html>
